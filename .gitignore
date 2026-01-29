@@ -1,0 +1,14 @@
+# Bazel
+bazel-*
+MODULE.bazel.lock
+.bazelrc.user
+user.bazelrc
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
