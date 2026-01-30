@@ -11,7 +11,7 @@ def _claude_test_impl(ctx):
 
     # Create the test script and result file
     script = ctx.actions.declare_file(ctx.label.name + ".sh")
-    result_file = ctx.label.name + "_result.txt"
+    result_file = "/tmp/" + ctx.label.name + "_result.txt"
 
     # Build the prompt
     prompt = ctx.attr.prompt
@@ -26,13 +26,22 @@ def _claude_test_impl(ctx):
         full_prompt = "Input files: " + ", ".join(src_paths) + ". " + full_prompt
 
     # Add instructions for the agent to write PASS/FAIL result
-    full_prompt = full_prompt + " Write the result to " + result_file + ". The first line must be exactly PASS or FAIL. Following lines should explain why the test passed or failed."
+    full_prompt = full_prompt + " Write PASS or FAIL to " + result_file + " - the file must contain just PASS or FAIL, nothing else."
+
+    # If local_auth is enabled, run test locally without sandbox and use real HOME
+    # Otherwise, run sandboxed with a fake HOME
+    if local_auth:
+        env_vars = ""
+        execution_info = {"local": "1"}
+    else:
+        env_vars = "export HOME=.home\n"
+        execution_info = {}
 
     # Build the test script content
     script_content = """#!/bin/bash
-{claude_binary} --dangerously-skip-permissions -p {prompt}
+{env_vars}{claude_binary} --dangerously-skip-permissions -p {prompt}
 if [ ! -f {result_file} ]; then
-    echo "FAIL: Result file was not created"
+    echo "FAIL: Result file was not created at {result_file}"
     exit 1
 fi
 cat {result_file}
@@ -43,6 +52,7 @@ else
     exit 1
 fi
 """.format(
+        env_vars = env_vars,
         claude_binary = claude_binary.short_path,
         prompt = repr(full_prompt),
         result_file = result_file,
@@ -56,10 +66,13 @@ fi
 
     runfiles = ctx.runfiles(files = ctx.files.srcs + [claude_binary])
 
-    return [DefaultInfo(
-        executable = script,
-        runfiles = runfiles,
-    )]
+    return [
+        DefaultInfo(
+            executable = script,
+            runfiles = runfiles,
+        ),
+        testing.ExecutionInfo(execution_info),
+    ]
 
 claude_test = rule(
     implementation = _claude_test_impl,
