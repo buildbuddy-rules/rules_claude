@@ -1,7 +1,6 @@
 """Claude run rule that creates an executable to run prompts via bazel run."""
 
 load("@tools_claude//claude:defs.bzl", "CLAUDE_TOOLCHAIN_TYPE")
-load(":flags.bzl", "LocalAuthInfo")
 
 def _shell_quote(s):
     """Quote a string for safe use in shell scripts."""
@@ -69,10 +68,6 @@ claude_run = rule(
         ),
         "outs": attr.string_list(
             doc = "Multiple output filenames.",
-        ),
-        "local_auth": attr.label(
-            default = "@rules_claude//:local_auth",
-            doc = "Flag to enable local auth mode.",
         ),
     },
     executable = True,

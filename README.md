@@ -152,7 +152,6 @@ Creates an executable that runs Claude Code with the given prompt. Use with `baz
 | `prompt` | `string` | **Required.** The prompt to send to Claude. |
 | `out` | `string` | Output filename to include in the prompt. |
 | `outs` | `string_list` | Multiple output filenames to include in the prompt. |
-| `local_auth` | `label` | Flag to enable local auth mode. Defaults to `@rules_claude//:local_auth`. |
 
 ### `claude_test`
 
