@@ -1,8 +1,6 @@
 # rules_claude
 
-Bazel rules for running Claude Code prompts as build actions. Built on top of [tools_claude](https://github.com/buildbuddy-rules/tools_claude).
-
-If you want a hermetic Claude Code toolchain that you can use to write your own rules, see [tools_claude](https://github.com/buildbuddy-rules/tools_claude).
+Bazel rules for running Claude Code prompts as build & test actions. Built on top of [tools_claude](https://github.com/buildbuddy-rules/tools_claude), a hermetic, cross-platform Claude Code toolchain that you can use to write your own ruleset.
 
 ## Setup
 
