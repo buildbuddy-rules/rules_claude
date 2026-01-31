@@ -1,6 +1,6 @@
 # rules_claude
 
-Bazel rules for running Claude Code prompts as build & test actions. Built on top of [tools_claude](https://github.com/buildbuddy-rules/tools_claude), a hermetic, cross-platform Claude Code toolchain that you can use to write your own ruleset.
+Bazel rules for running Claude Code prompts as build, test, and run actions. Built on top of [tools_claude](https://github.com/buildbuddy-rules/tools_claude), a hermetic, cross-platform Claude Code toolchain that you can use to write your own ruleset.
 
 ## Setup
 
@@ -25,7 +25,7 @@ git_override(
 ## Usage
 
 ```python
-load("@rules_claude//claude:defs.bzl", "claude", "claude_test")
+load("@rules_claude//claude:defs.bzl", "claude", "claude_run", "claude_test")
 
 # Generate documentation from source files
 claude(
@@ -57,6 +57,13 @@ claude(
     name = "website",
     srcs = ["README.md"],
     prompt = "Generate a complete static marketing website based on this README.",
+)
+
+# Interactively refactor code with `bazel run`
+claude_run(
+    name = "modernize",
+    srcs = glob(["src/**/*.py"]),
+    prompt = "Refactor this code to use modern Python 3.12 features like pattern matching and type hints.",
 )
 
 # Test that documentation is accurate
@@ -131,7 +138,20 @@ Runs Claude Code with the given prompt and input files to produce an output.
 |-----------|------|-------------|
 | `srcs` | `label_list` | Input files to be processed by the prompt. |
 | `prompt` | `string` | **Required.** The prompt to send to Claude. |
-| `out` | `string` | Output filename. Defaults to `<name>.txt`. |
+| `out` | `string` | Output filename. If not specified, outputs to a directory. |
+| `outs` | `string_list` | Multiple output filenames. Takes precedence over `out`. |
+| `local_auth` | `label` | Flag to enable local auth mode. Defaults to `@rules_claude//:local_auth`. |
+
+### `claude_run`
+
+Creates an executable that runs Claude Code with the given prompt. Use with `bazel run`.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `srcs` | `label_list` | Input files to be processed by the prompt. |
+| `prompt` | `string` | **Required.** The prompt to send to Claude. |
+| `out` | `string` | Output filename to include in the prompt. |
+| `outs` | `string_list` | Multiple output filenames to include in the prompt. |
 | `local_auth` | `label` | Flag to enable local auth mode. Defaults to `@rules_claude//:local_auth`. |
 
 ### `claude_test`
