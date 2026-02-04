@@ -5,7 +5,6 @@ load("//claude:defs.bzl", "claude_run", "local_auth_flag")
 # Default target for `bazel run @rules_claude`
 claude_run(
     name = "rules_claude",
-    prompt = "",
     interactive = True,
     visibility = ["//visibility:public"],
 )

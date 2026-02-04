@@ -30,24 +30,28 @@ def _claude_run_impl(ctx):
     elif ctx.attr.out:
         full_prompt = full_prompt + " Write the output to " + ctx.attr.out
 
-    prompt_flag = "" if ctx.attr.interactive else "-p"
     if ctx.attr.allowed_tools:
         permissions_flags = "--allowedTools " + " ".join(ctx.attr.allowed_tools)
     elif ctx.attr.interactive:
         permissions_flags = ""
     else:
         permissions_flags = "--dangerously-skip-permissions"
+
+    if full_prompt:
+        prompt_arg = ("-p " if not ctx.attr.interactive else "") + _shell_quote(full_prompt)
+    else:
+        prompt_arg = ""
+
     script = ctx.actions.declare_file(ctx.label.name + ".sh")
     script_content = """#!/bin/bash
 set -e
 SCRIPT_DIR="$(pwd)"
 cd "$BUILD_WORKING_DIRECTORY"
-exec "$SCRIPT_DIR/{claude_binary}" {permissions_flags} {prompt_flag} {prompt} "$@"
+exec "$SCRIPT_DIR/{claude_binary}" {permissions_flags} {prompt_arg} "$@"
 """.format(
         permissions_flags = permissions_flags,
         claude_binary = claude_binary.short_path,
-        prompt_flag = prompt_flag,
-        prompt = _shell_quote(full_prompt),
+        prompt_arg = prompt_arg,
     )
     ctx.actions.write(
         output = script,
@@ -69,7 +73,6 @@ claude_run = rule(
             doc = "Input files to be processed by the prompt.",
         ),
         "prompt": attr.string(
-            mandatory = True,
             doc = "The prompt to send to Claude.",
         ),
         "out": attr.string(
