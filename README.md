@@ -37,6 +37,16 @@ claude = use_extension("@rules_claude//claude:extensions.bzl", "claude")
 claude.download(use_latest = True)
 ```
 
+## Running Claude Directly
+
+To launch Claude Code interactively using the hermetic toolchain:
+
+```bash
+bazel run @rules_claude
+```
+
+This runs the Claude CLI in interactive mode within your workspace.
+
 ## Usage
 
 ```python
